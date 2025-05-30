@@ -128,15 +128,15 @@ def main():
     st.set_page_config(page_title="Google Multi-Keyword Scraper", layout="wide")
     st.title("🔎 Google Advanced Multi-Keyword Scraper")
 
-# ✅ Checkbox กรองเฉพาะ Facebook หรือ X (ก่อนพิมพ์คำค้น)
-    col_fb, col_x = st.columns(2)
-    filter_facebook = col_fb.checkbox("🔵 เฉพาะ Facebook")
-    filter_x = col_x.checkbox("⚫️ เฉพาะ X (Twitter)")
-
     st.markdown("💡 พิมพ์คำค้นหลายชุด คั่นด้วย `Enter` เช่น:\n```\nงาน\nที่เที่ยวในไทย\nChulaScaping\n```")
 
     keyword_input = st.text_area("📌 หลายคำค้น (ใส่ทีละบรรทัด)", height=150)
     queries = [line.strip() for line in keyword_input.splitlines() if line.strip()]
+
+    # ✅ Checkbox กรองเฉพาะ Facebook หรือ X (ก่อนพิมพ์คำค้น)
+    col_fb, col_x = st.columns(2)
+    filter_facebook = col_fb.checkbox("🔵 เฉพาะ Facebook")
+    filter_x = col_x.checkbox("⚫️ เฉพาะ X (Twitter)")
 
 # Advanced filters (optional)
     with st.expander("🔧 ตัวเลือกขั้นสูง (Optional Filters)"):
