@@ -12,18 +12,18 @@ import io
 
 st.set_page_config(page_title="X Scraper", page_icon="🔎", layout="wide")
 st.markdown("<h1 style='text-align: center;'>🚀 X Scraper</h1>", unsafe_allow_html=True)
-st.markdown("### 🔐 ล็อกอินและค้นหาข้อมูลจากเว็บไซต์ [X](https://x.com) แบบอัตโนมัติ")
+st.markdown("### 🔐 LoginAndSearch [X](https://x.com) Automatic")
 
 with st.form("login_and_search"):
     col1, col2 = st.columns(2)
     with col1:
-        username = st.text_input("👤 Username หรือ Email", placeholder="กรอกชื่อผู้ใช้")
+        username = st.text_input("👤 Username or Email", placeholder="กรอกชื่อผู้ใช้")
     with col2:
         password = st.text_input("🔒 Password", type="password", placeholder="กรอกรหัสผ่าน")
 
-    search_term = st.text_input("🔍 คำที่ต้องการค้นหาใน X", placeholder="เช่น เที่ยวเชียงใหม่")
+    search_term = st.text_input("🔍 คำที่ต้องการค้นหาใน X", placeholder="เช่น Chula")
 
-    num_pages = st.slider("📄 จำนวนหน้าที่ต้องการสแครป (scroll)", min_value=1, max_value=50, value=3)
+    num_pages = st.slider("📄 จำนวนหน้าที่ต้องการสแครป", min_value=1, max_value=50, value=3)
 
     submitted = st.form_submit_button("🎯 เริ่มค้นหาเลย!")
 
