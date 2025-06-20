@@ -8,19 +8,27 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import pandas as pd
-import io  # สำหรับ buffer
+import io
 
-st.title("🔐 X Scraper")
+st.set_page_config(page_title="X Scraper", page_icon="🔎", layout="wide")
+st.markdown("<h1 style='text-align: center;'>🚀 X Scraper</h1>", unsafe_allow_html=True)
+st.markdown("### 🔐 ล็อกอินและค้นหาข้อมูลจากเว็บไซต์ [X](https://x.com) แบบอัตโนมัติ")
 
 with st.form("login_and_search"):
-    st.subheader("🔐 ล็อกอินและค้นหาจาก X")
-    username = st.text_input("Username หรือ Email", placeholder="กรอกชื่อผู้ใช้")
-    password = st.text_input("Password", type="password", placeholder="กรอกรหัสผ่าน")
+    col1, col2 = st.columns(2)
+    with col1:
+        username = st.text_input("👤 Username หรือ Email", placeholder="กรอกชื่อผู้ใช้")
+    with col2:
+        password = st.text_input("🔒 Password", type="password", placeholder="กรอกรหัสผ่าน")
+
     search_term = st.text_input("🔍 คำที่ต้องการค้นหาใน X", placeholder="เช่น เที่ยวเชียงใหม่")
-    submitted = st.form_submit_button("🚀 เริ่มค้นหา")
+
+    num_pages = st.slider("📄 จำนวนหน้าที่ต้องการสแครป (scroll)", min_value=1, max_value=50, value=3)
+
+    submitted = st.form_submit_button("🎯 เริ่มค้นหาเลย!")
 
 if submitted:
-    st.info("กำลังเข้าสู่ระบบและค้นหา...")
+    st.info("⏳ กำลังเข้าสู่ระบบและค้นหา โปรดรอสักครู่...")
 
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
@@ -51,7 +59,7 @@ if submitted:
         driver.get(driver.current_url + "&f=live")
         time.sleep(5)
 
-        for _ in range(3):
+        for _ in range(num_pages):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
 
@@ -98,36 +106,27 @@ if submitted:
             })
 
         df = pd.DataFrame(data)
-        st.success(f"🎉 เจอ {len(df)} โพสต์แรก")
+        st.markdown("---")
+        st.markdown("## 📊 ผลลัพธ์จากการค้นหา")
 
-        # แสดงตารางพร้อมลิงก์ clickable
-        df["ลิงก์"] = df["ลิงก์"].apply(lambda x: f'<a href="{x}" target="_blank">{x}</a>')
-        st.write(df.to_html(escape=False), unsafe_allow_html=True)
+        st.success(f"🎉 พบทั้งหมด {len(df)} โพสต์จากคำค้น: `{search_term}`")
+        st.dataframe(df.drop(columns=["ลิงก์"]))  # ซ่อนลิงก์คลิกไว้จาก DataFrame ปกติ
 
-        # สร้าง CSV สำหรับดาวน์โหลด
+        st.markdown("### 🔗 ลิงก์ทั้งหมด (กดเพื่อเปิดดูโพสต์)")
+        st.write(df[["ชื่อบนโปรไฟล์", "User ID (@...)", "ข้อความ", "ลิงก์"]].to_html(escape=False), unsafe_allow_html=True)
+
+        # 🎁 ปุ่มดาวน์โหลด
+        col_dl1, col_dl2 = st.columns(2)
         csv_data = df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 ดาวน์โหลด CSV",
-            data=csv_data,
-            file_name='x_scraped_results.csv',
-            mime='text/csv'
-        )
 
-        # สร้าง Excel สำหรับดาวน์โหลด
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Results')
-        excel_data = output.getvalue()
-
-        st.download_button(
-            label="📥 ดาวน์โหลด Excel (.xlsx)",
-            data=excel_data,
-            file_name='x_scraped_results.xlsx',
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-
-    except Exception as e:
-        st.error(f"❌ เกิดข้อผิดพลาด: {e}")
-
+        output.seek(0)
+        excel_data = output.read()
+        with col_dl1:
+            st.download_button("📥 ดาวน์โหลด CSV", data=csv_data, file_name="x_scraped_results.csv", mime="text/csv")
+        with col_dl2:
+            st.download_button("📥 ดาวน์โหลด Excel (.xlsx)", data=excel_data, file_name="x_scraped_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     finally:
         driver.quit()
